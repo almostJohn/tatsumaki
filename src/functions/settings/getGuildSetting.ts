@@ -25,10 +25,10 @@ export async function getGuildSetting<T = string>(guildId: Snowflake, prop: Sett
 
 	const [data] = await sql.unsafe<[{ value: ReportStatusTagTuple | ReportTypeTagTuple | boolean | string | null }?]>(
 		`select ${prop} as value
-          from ${table}
-          where guild_id = $1`,
+		from ${table}
+		where guild_id = $1`,
 		[guildId],
 	);
 
-	return (data?.value ?? null) as T;
+	return (data?.value ?? null) as unknown as T;
 }
