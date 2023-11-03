@@ -1,0 +1,34 @@
+import type { Sql } from "postgres";
+import { container } from "tsyringe";
+import type { CreateCase } from "./createCase.js";
+import { type RawCase, transformCase } from "./transformCase.js";
+import { removeUndefinedKeys } from "../../util/removeUndefinedKeys.js";
+import { kSQL } from "../../tokens.js";
+
+export type PatchCase = Pick<
+	CreateCase,
+	"actionExpiration" | "caseId" | "contextMessageId" | "guildId" | "reason" | "refId" | "reportRefId"
+>;
+
+export async function updateCase(case_: PatchCase) {
+	const sql = container.resolve<Sql<any>>(kSQL);
+
+	const updates: Partial<Record<keyof RawCase, unknown>> = {
+		action_expiration: case_.actionExpiration,
+		reason: case_.reason,
+		context_message_id: case_.contextMessageId,
+		ref_id: case_.refId,
+		report_ref_id: case_.reportRefId,
+	};
+
+	const queries = removeUndefinedKeys(updates);
+
+	const [updatedCase] = await sql<[RawCase]>`
+          update cases set ${sql(queries as Record<string, unknown>, ...Object.keys(queries))}
+          where guild_id = ${case_.guildId}
+               and case_id = ${case_.caseId!}
+          returning *
+     `;
+
+	return transformCase(updatedCase);
+}
