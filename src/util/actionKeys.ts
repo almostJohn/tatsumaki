@@ -1,5 +1,6 @@
 import i18next from "i18next";
 import { CaseAction } from "../functions/cases/createCase.js";
+import { ReportStatus } from "../functions/reports/createReport.js";
 
 export function caseActionLabel(key: CaseAction, locale: string): string {
 	switch (key) {
@@ -19,5 +20,20 @@ export function caseActionLabel(key: CaseAction, locale: string): string {
 			return i18next.t("log.history.cases.action_label.timeout_end", { lng: locale });
 		default:
 			return i18next.t("log.history.cases.action_label.unknown", { lng: locale });
+	}
+}
+
+export function reportStatusLabel(key: ReportStatus, locale: string): string {
+	switch (key) {
+		case ReportStatus.Pending:
+			return i18next.t("log.history.reports.status_label.pending", { lng: locale });
+		case ReportStatus.Approved:
+			return i18next.t("log.history.reports.status_label.approved", { lng: locale });
+		case ReportStatus.Rejected:
+			return i18next.t("log.history.reports.status_label.rejected", { lng: locale });
+		case ReportStatus.Spam:
+			return i18next.t("log.history.reports.status_label.spam", { lng: locale });
+		default:
+			return i18next.t("log.history.reports.status_label.unknown", { lng: locale });
 	}
 }

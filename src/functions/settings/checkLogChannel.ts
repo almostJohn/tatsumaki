@@ -1,6 +1,6 @@
 import type { Guild, Snowflake, TextChannel, ForumChannel } from "discord.js";
 
-export function chechLogChannel(guild: Guild, logChannelId: Snowflake) {
+export function checkLogChannel(guild: Guild, logChannelId: Snowflake) {
 	return guild.client.channels.resolve(logChannelId) as TextChannel | null;
 }
 
