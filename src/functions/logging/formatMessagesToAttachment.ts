@@ -30,7 +30,7 @@ export function formatMessagesToAttachment(
 				`[${dayjs(message.createdTimestamp).utc().format(DATE_FORMAT_WITH_SECONDS)} (UTC)] ${
 					message.author?.tag ?? "Unknown author"
 				} (${message.author?.id ?? "Unknown author"}): ${
-					message.cleanContent ? message.cleanContent.replaceAll(`\n`, `\n`) : ""
+					message.cleanContent ? message.cleanContent.replaceAll("\n", "\n") : ""
 				}`,
 			];
 
