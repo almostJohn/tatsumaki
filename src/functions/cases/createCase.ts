@@ -3,6 +3,8 @@ import type { Sql } from "postgres";
 import type { CamelCasedProperties } from "type-fest";
 import type { PartialAndUndefinedOnNull } from "../../types/Utility.js";
 import { type RawCase, transformCase } from "./transformCase.js";
+import { updateCase } from "./updateCase.js";
+import { resolvePendingReports } from "../reports/resolveReports.js";
 import { container } from "tsyringe";
 import { kSQL } from "../../tokens.js";
 import { logger } from "../../logger.js";
@@ -32,7 +34,7 @@ export type CreateCase = Omit<
 	target?: GuildMember | null | undefined;
 };
 
-// const REPORT_AUTO_RESOLVE_IGNORE_ACTIONS = [CaseAction.TimeoutEnd, CaseAction.Unban];
+const REPORT_AUTO_RESOLVE_IGNORE_ACTIONS = [CaseAction.TimeoutEnd, CaseAction.Unban];
 
 export async function createCase(
 	guild: Guild,
@@ -114,6 +116,28 @@ export async function createCase(
           )
           returning *
      `;
+
+	if (!REPORT_AUTO_RESOLVE_IGNORE_ACTIONS.includes(case_.action)) {
+		try {
+			const resolvedReports = await resolvePendingReports(
+				guild,
+				case_.targetId,
+				newCase.case_id,
+				await guild.client.users.fetch(newCase.mod_id),
+			);
+
+			if (resolvedReports.length && !case_.reportRefId) {
+				return await updateCase({
+					caseId: newCase.case_id,
+					guildId: newCase.guild_id,
+					reportRefId: resolvedReports.at(-1)!.report_id,
+				});
+			}
+		} catch (error_) {
+			const error = error_ as Error;
+			logger.error(error, error.message);
+		}
+	}
 
 	return transformCase(newCase);
 }

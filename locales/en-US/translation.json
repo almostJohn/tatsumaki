@@ -298,8 +298,7 @@
 					"title": "Member details",
 					"description": {
 						"nickname": "• Nickname: `{{- nickname}}`",
-						"roles_one": "• Role ({{count}}): {{- roles}}",
-						"roles_other": "• Roles ({{count}}): {{- roles}}",
+						"roles": "• Role ({{count}}): {{- roles}}",
 						"joined": "• Joined: {{- joined_at}} ({{- joined_at_since}}) `{{joined_at_timestamp}}`"
 					}
 				}
