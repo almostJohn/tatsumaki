@@ -4,6 +4,10 @@ import type { Command } from "../Command.js";
 import type { CommandPayload } from "../interactions/ArgumentsOf.js";
 import { transformApplicationInteraction } from "../interactions/InteractionOptions.js";
 import type { Event } from "../Event.js";
+import { handleCaseAutocomplete } from "../functions/autocomplete/cases.js";
+import { handleReportAutocomplele } from "../functions/autocomplete/reports.js";
+import { handleReasonAutocomplete } from "../functions/autocomplete/reasons.js";
+import { findAutocompleteType, AutocompleteType } from "../functions/autocomplete/validate.js";
 import { getGuildSetting, SettingsKeys } from "../functions/settings/getGuildSetting.js";
 import { kCommands } from "../tokens.js";
 import { logger } from "../logger.js";
@@ -53,6 +57,28 @@ export default class implements Event {
 							);
 
 							if (isAutocomplete) {
+								const autocompleteType = findAutocompleteType(interaction.options.getFocused(true).name);
+
+								logger.info(
+									{ command: { name: interaction.commandName, type: interaction.type }, userId: interaction.user.id },
+									`Executing autocomplete ${interaction.commandName} with type ${autocompleteType ?? "custom"}`,
+								);
+
+								if (autocompleteType === AutocompleteType.Reason) {
+									await handleReasonAutocomplete(interaction, effectiveLocale);
+									break;
+								}
+
+								if (autocompleteType === AutocompleteType.Case) {
+									await handleCaseAutocomplete(interaction, effectiveLocale);
+									break;
+								}
+
+								if (autocompleteType === AutocompleteType.Report) {
+									await handleReportAutocomplele(interaction, effectiveLocale);
+									break;
+								}
+
 								await command.autocomplete(
 									interaction,
 									transformApplicationInteraction(interaction.options.data),
