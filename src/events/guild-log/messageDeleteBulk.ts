@@ -1,0 +1,106 @@
+import { Buffer } from "node:buffer";
+import { on } from "node:events";
+import { Client, Events, type Snowflake, type Webhook } from "discord.js";
+import i18next from "i18next";
+import type { Event } from "../../Event.js";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime.js";
+import utc from "dayjs/plugin/utc.js";
+import { inject, injectable } from "tsyringe";
+import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
+import { addFields, truncateEmbed } from "../../util/embed.js";
+import { formatMessagesToAttachment } from "../../functions/logging/formatMessagesToAttachment.js";
+import { Color } from "../../Constants.js";
+import { kWebhooks } from "../../tokens.js";
+import { logger } from "../../logger.js";
+
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
+
+@injectable()
+export default class implements Event {
+	public name = "Guild log message bulk delete";
+
+	public event = Events.MessageBulkDelete as const;
+
+	public constructor(
+		public readonly client: Client<true>,
+		@inject(kWebhooks) public readonly webhooks: Map<string, Webhook>,
+	) {}
+
+	public async execute(): Promise<void> {
+		for await (const [messages] of on(this.client, this.event)) {
+			const userMessages = messages.filter((message) => !message.author?.bot);
+			const firstMessage = userMessages.first();
+
+			if (!firstMessage?.inGuild()) {
+				continue;
+			}
+
+			try {
+				const guildLogWebhookId = await getGuildSetting(firstMessage.guild.id, SettingsKeys.GuildLogWebhookId);
+
+				if (!guildLogWebhookId) {
+					continue;
+				}
+
+				const webhook = this.webhooks.get(guildLogWebhookId);
+
+				if (!webhook) {
+					continue;
+				}
+
+				const ignoreChannels = await getGuildSetting(firstMessage.guild.id, SettingsKeys.LogIgnoreChannels);
+
+				if (
+					ignoreChannels.includes(firstMessage.channelId) ||
+					(firstMessage.channel.parentId && ignoreChannels.includes(firstMessage.channel.parentId)) ||
+					(firstMessage.channel.parent?.parentId && ignoreChannels.includes(firstMessage.channel.parent.parentId))
+				) {
+					continue;
+				}
+
+				const uniqueAuthors = new Set<Snowflake>();
+				for (const message of userMessages.values()) {
+					if (message.author) {
+						uniqueAuthors.add(message.author.id);
+					}
+				}
+
+				const locale = await getGuildSetting(firstMessage.guild.id, SettingsKeys.Locale);
+
+				const embed = addFields({
+					author: {
+						name:
+							uniqueAuthors.size === 1
+								? `${firstMessage.author.tag} (${firstMessage.author.id})`
+								: i18next.t("log.guild_log.message_bulk_deleted.multiple_authors", { lng: locale }),
+						icon_url:
+							uniqueAuthors.size === 1 ? firstMessage.author.displayAvatarURL() : this.client.user.displayAvatarURL(),
+					},
+					color: Color.LogsMessageDelete,
+					title: i18next.t("log.guild_log.message_bulk_deleted.title", { lng: locale }),
+					description: i18next.t("log.guild_log.message_bulk_deleted.description", {
+						channel: `${firstMessage.channel.toString()} - ${
+							firstMessage.inGuild() ? firstMessage.channel.name : ""
+						} (${firstMessage.channel.id})`,
+						lng: locale,
+					}),
+					timestamp: new Date().toISOString(),
+				});
+
+				await webhook.send({
+					embeds: [truncateEmbed(embed)],
+					files: [
+						{ name: "logs.txt", attachment: Buffer.from(formatMessagesToAttachment(userMessages, locale), "utf8") },
+					],
+					username: this.client.user.username,
+					avatarURL: this.client.user.displayAvatarURL(),
+				});
+			} catch (error_) {
+				const error = error_ as Error;
+				logger.error(error, error.message);
+			}
+		}
+	}
+}
