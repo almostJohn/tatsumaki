@@ -23,9 +23,9 @@ function colorFromDuration(duration: number) {
 
 	const tintFactor = 0.3;
 
-	red += (red - 255) * tintFactor;
-	green += (green - 255) * tintFactor;
-	blue += (blue - 255) * tintFactor;
+	red += (255 - red) * tintFactor;
+	green += (255 - green) * tintFactor;
+	blue += (255 - blue) * tintFactor;
 
 	return (red << 16) + (green << 8) + blue;
 }
