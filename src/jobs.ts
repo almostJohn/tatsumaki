@@ -31,10 +31,10 @@ export async function registerJobs() {
 				switch (job.name) {
 					case "modActionTimers": {
 						const currentCases = await sql<[{ action_expiration: string; case_id: number; guild_id: Snowflake }]>`
-                                   select guild_id, case_id, action_expiration
-                                   from cases
-                                   where action_processed = false
-                              `;
+							select guild_id, case_id, action_expiration
+							from cases
+							where action_processed = false
+						`;
 
 						for (const case_ of currentCases) {
 							if (Date.parse(case_.action_expiration) <= Date.now()) {
@@ -59,9 +59,9 @@ export async function registerJobs() {
 
 					case "modLockdownTimers": {
 						const currentLockdowns = await sql<[{ channel_id: Snowflake; expiration: string }]>`
-                              select channel_id, expiration
-                              from lockdowns
-                         `;
+							select channel_id, expiration
+							from lockdowns
+						`;
 
 						for (const lockdown of currentLockdowns) {
 							if (Date.parse(lockdown.expiration) <= Date.now()) {
