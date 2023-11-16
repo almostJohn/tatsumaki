@@ -1,0 +1,86 @@
+import { type Job, Queue, Worker } from "bullmq";
+import { Client, type Snowflake } from "discord.js";
+import type { Redis } from "ioredis";
+import type { Sql } from "postgres";
+import { container } from "tsyringe";
+import { deleteCase } from "./functions/cases/deleteCase.js";
+import { deleteLockdown } from "./functions/lockdowns/deleteLockdown.js";
+import { upsertCaseLog } from "./functions/logging/upsertCaseLog.js";
+import { kRedis, kSQL } from "./tokens.js";
+import { logger } from "./logger.js";
+
+export async function registerJobs() {
+	const client = container.resolve<Client<true>>(Client);
+	const sql = container.resolve<Sql<{}>>(kSQL);
+	const redis = container.resolve<Redis>(kRedis);
+
+	const queue = new Queue("jobs", { connection: redis });
+
+	try {
+		logger.info({ job: { name: "modActionTimers" } }, "Registering job: modActionTimers");
+		await queue.add("modActionTimers", {}, { repeat: { pattern: "* * * * *" } });
+		logger.info({ job: { name: "modActionTimers" } }, "Registered job: modActionTimers");
+
+		logger.info({ job: { name: "modLockdownTimers" } }, "Registering job: modLockdownTimers");
+		await queue.add("modLockdownTimers", {}, { repeat: { pattern: "* * * * *" } });
+		logger.info({ job: { name: "modLockdownTimers" } }, "Registered job: modLockdownTimers");
+
+		new Worker("job", async (job: Job) => {
+			switch (job.name) {
+				case "modActionTimers": {
+					const currentCases = await sql<[{ action_expiration: string; case_id: number; guild_id: Snowflake }]>`
+                                   select guild_id, case_id, action_expiration
+                                   from cases
+                                   where action_processed = false
+                              `;
+
+					for (const case_ of currentCases) {
+						if (Date.parse(case_.action_expiration) <= Date.now()) {
+							const guild = client.guilds.resolve(case_.guild_id);
+
+							if (!guild) {
+								continue;
+							}
+
+							try {
+								const newCase = await deleteCase({ guild, user: client.user, caseId: case_.case_id });
+								await upsertCaseLog(guild, client.user, newCase);
+							} catch (error_) {
+								const error = error_ as Error;
+								logger.error(error, error.message);
+							}
+						}
+					}
+
+					break;
+				}
+
+				case "modLockdownTimers": {
+					const currentLockdowns = await sql<[{ channel_id: Snowflake; expiration: string }]>`
+                              select channel_id, expiration
+                              from lockdowns
+                         `;
+
+					for (const lockdown of currentLockdowns) {
+						if (Date.parse(lockdown.expiration) <= Date.now()) {
+							try {
+								await deleteLockdown(lockdown.channel_id);
+							} catch (error_) {
+								const error = error_ as Error;
+								logger.error(error, error.message);
+							}
+						}
+					}
+
+					break;
+				}
+
+				default:
+					break;
+			}
+		});
+	} catch (error_) {
+		const error = error_ as Error;
+		logger.error(error, error.message);
+	}
+}

@@ -3,6 +3,7 @@ import type { Event } from "../Event.js";
 import { Client, Events, type Webhook, PermissionFlagsBits } from "discord.js";
 import { inject, injectable } from "tsyringe";
 import { getGuildSetting, SettingsKeys } from "../functions/settings/getGuildSetting.js";
+import { registerJobs } from "../jobs.js";
 import { kWebhooks } from "../tokens.js";
 import { logger } from "../logger.js";
 
@@ -55,7 +56,8 @@ export default class implements Event {
 				}
 			}
 
-			logger.info({ event: { name: this.name, event: this.event } }, "Successfully logged in!");
+			logger.info({ event: { name: this.name, event: this.event } }, "Registering jobs");
+			await registerJobs();
 		}
 	}
 }
