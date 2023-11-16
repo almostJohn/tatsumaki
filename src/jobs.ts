@@ -25,60 +25,64 @@ export async function registerJobs() {
 		await queue.add("modLockdownTimers", {}, { repeat: { pattern: "* * * * *" } });
 		logger.info({ job: { name: "modLockdownTimers" } }, "Registered job: modLockdownTimers");
 
-		new Worker("job", async (job: Job) => {
-			switch (job.name) {
-				case "modActionTimers": {
-					const currentCases = await sql<[{ action_expiration: string; case_id: number; guild_id: Snowflake }]>`
+		new Worker(
+			"jobs",
+			async (job: Job) => {
+				switch (job.name) {
+					case "modActionTimers": {
+						const currentCases = await sql<[{ action_expiration: string; case_id: number; guild_id: Snowflake }]>`
                                    select guild_id, case_id, action_expiration
                                    from cases
                                    where action_processed = false
                               `;
 
-					for (const case_ of currentCases) {
-						if (Date.parse(case_.action_expiration) <= Date.now()) {
-							const guild = client.guilds.resolve(case_.guild_id);
+						for (const case_ of currentCases) {
+							if (Date.parse(case_.action_expiration) <= Date.now()) {
+								const guild = client.guilds.resolve(case_.guild_id);
 
-							if (!guild) {
-								continue;
-							}
+								if (!guild) {
+									continue;
+								}
 
-							try {
-								const newCase = await deleteCase({ guild, user: client.user, caseId: case_.case_id });
-								await upsertCaseLog(guild, client.user, newCase);
-							} catch (error_) {
-								const error = error_ as Error;
-								logger.error(error, error.message);
+								try {
+									const newCase = await deleteCase({ guild, user: client.user, caseId: case_.case_id });
+									await upsertCaseLog(guild, client.user, newCase);
+								} catch (error_) {
+									const error = error_ as Error;
+									logger.error(error, error.message);
+								}
 							}
 						}
+
+						break;
 					}
 
-					break;
-				}
-
-				case "modLockdownTimers": {
-					const currentLockdowns = await sql<[{ channel_id: Snowflake; expiration: string }]>`
+					case "modLockdownTimers": {
+						const currentLockdowns = await sql<[{ channel_id: Snowflake; expiration: string }]>`
                               select channel_id, expiration
                               from lockdowns
                          `;
 
-					for (const lockdown of currentLockdowns) {
-						if (Date.parse(lockdown.expiration) <= Date.now()) {
-							try {
-								await deleteLockdown(lockdown.channel_id);
-							} catch (error_) {
-								const error = error_ as Error;
-								logger.error(error, error.message);
+						for (const lockdown of currentLockdowns) {
+							if (Date.parse(lockdown.expiration) <= Date.now()) {
+								try {
+									await deleteLockdown(lockdown.channel_id);
+								} catch (error_) {
+									const error = error_ as Error;
+									logger.error(error, error.message);
+								}
 							}
 						}
+
+						break;
 					}
 
-					break;
+					default:
+						break;
 				}
-
-				default:
-					break;
-			}
-		});
+			},
+			{ connection: redis },
+		);
 	} catch (error_) {
 		const error = error_ as Error;
 		logger.error(error, error.message);
