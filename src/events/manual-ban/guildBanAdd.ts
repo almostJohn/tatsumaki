@@ -1,17 +1,14 @@
 import { on } from "node:events";
 import { setTimeout as pSetTimeout } from "node:timers/promises";
+import { type Event, inject, injectable, kRedis, logger } from "@almostjohn/djs-framework";
 import { Client, Events, type GuildBan, AuditLogEvent } from "discord.js";
 import type { Redis } from "ioredis";
-import type { Event } from "../../Event.js";
-import { inject, injectable } from "tsyringe";
 import { AUDIT_LOG_WAIT_SECONDS } from "../../Constants.js";
 import { createCase, CaseAction } from "../../functions/cases/createCase.js";
 import { generateCasePayload } from "../../functions/logging/generateCasePayload.js";
 import { upsertCaseLog } from "../../functions/logging/upsertCaseLog.js";
 import { checkLogChannel } from "../../functions/settings/checkLogChannel.js";
 import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
-import { kRedis } from "../../tokens.js";
-import { logger } from "../../logger.js";
 
 @injectable()
 export default class implements Event {
@@ -39,15 +36,7 @@ export default class implements Event {
 				const deleted = await this.redis.del(`guild:${guildBan.guild.id}:user:${guildBan.user.id}:ban`);
 
 				if (deleted) {
-					logger.info(
-						{
-							event: { name: this.name, event: this.event },
-							guildId: guildBan.guild.id,
-							memberId: guildBan.user.id,
-							manual: false,
-						},
-						`Member ${guildBan.user.id} banned`,
-					);
+					logger.info(`Member ${guildBan.user.id} banned (manual: false)`);
 
 					continue;
 				}
@@ -56,27 +45,8 @@ export default class implements Event {
 				const auditLogs = await guildBan.guild.fetchAuditLogs({ limit: 10, type: AuditLogEvent.MemberBanAdd });
 				const logs = auditLogs.entries.find((log) => log.target!.id === guildBan.user.id);
 
-				logger.info(
-					{
-						event: { name: this.name, event: this.event },
-						guildId: guildBan.guild.id,
-						userId: logs?.executor?.id,
-						memberId: guildBan.user.id,
-						manual: true,
-					},
-					`Member ${guildBan.user.id} banned`,
-				);
-				logger.info(
-					{
-						event: { name: this.name, event: this.event },
-						guildId: guildBan.guild.id,
-						userId: logs?.executor?.id,
-						memberId: guildBan.user.id,
-						manual: true,
-						logs,
-					},
-					`Fetched logs for ban ${guildBan.user.id}`,
-				);
+				logger.info(`Member ${guildBan.user.id} banned (manual: true)`);
+				logger.info(`Fetched ${logs} for ban ${guildBan.user.id}`);
 
 				const case_ = await createCase(
 					guildBan.guild,

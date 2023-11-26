@@ -1,16 +1,19 @@
+import {
+	type Command,
+	type CommandPayload,
+	type Event,
+	inject,
+	injectable,
+	kCommands,
+	logger,
+	transformApplicationInteraction,
+} from "@almostjohn/djs-framework";
 import { ApplicationCommandType, Client, Events } from "discord.js";
-import { inject, injectable } from "tsyringe";
-import type { Command } from "../Command.js";
-import type { CommandPayload } from "../interactions/ArgumentsOf.js";
-import { transformApplicationInteraction } from "../interactions/InteractionOptions.js";
-import type { Event } from "../Event.js";
 import { handleCaseAutocomplete } from "../functions/autocomplete/cases.js";
 import { handleReportAutocomplele } from "../functions/autocomplete/reports.js";
 import { handleReasonAutocomplete } from "../functions/autocomplete/reasons.js";
 import { findAutocompleteType, AutocompleteType } from "../functions/autocomplete/validate.js";
 import { getGuildSetting, SettingsKeys } from "../functions/settings/getGuildSetting.js";
-import { kCommands } from "../tokens.js";
-import { logger } from "../logger.js";
 
 @injectable()
 export default class implements Event {
@@ -52,7 +55,6 @@ export default class implements Event {
 							const isAutocomplete = interaction.isAutocomplete();
 
 							logger.info(
-								{ command: { name: interaction.commandName, type: interaction.type }, userId: interaction.user.id },
 								`Executing ${isAutocomplete ? "autocomplete" : "chatInput command"} ${interaction.commandName}`,
 							);
 
@@ -60,7 +62,6 @@ export default class implements Event {
 								const autocompleteType = findAutocompleteType(interaction.options.getFocused(true).name);
 
 								logger.info(
-									{ command: { name: interaction.commandName, type: interaction.type }, userId: interaction.user.id },
 									`Executing autocomplete ${interaction.commandName} with type ${autocompleteType ?? "custom"}`,
 								);
 
@@ -96,10 +97,7 @@ export default class implements Event {
 						}
 
 						case ApplicationCommandType.Message: {
-							logger.info(
-								{ command: { name: interaction.commandName, type: interaction.type }, userId: interaction.user.id },
-								`Executing message context command ${interaction.commandName}`,
-							);
+							logger.info(`Executing message context command ${interaction.commandName}`);
 
 							await command.messageContext(
 								interaction,
@@ -110,10 +108,7 @@ export default class implements Event {
 						}
 
 						case ApplicationCommandType.User: {
-							logger.info(
-								{ command: { name: interaction.commandName, type: interaction.type }, userId: interaction.user.id },
-								`Executing user context command ${interaction.commandName}`,
-							);
+							logger.info(`Executing user context command ${interaction.commandName}`);
 
 							await command.userContext(
 								interaction,
@@ -136,10 +131,7 @@ export default class implements Event {
 						}
 
 						if (!interaction.deferred && !interaction.replied) {
-							logger.warn(
-								{ command: { name: interaction.commandName, type: interaction.type }, userId: interaction.user.id },
-								"Command interaction has not been deferred before throwing",
-							);
+							logger.warn("Command interaction has not been deferred before throwing");
 							await interaction.deferReply({ ephemeral: true });
 						}
 

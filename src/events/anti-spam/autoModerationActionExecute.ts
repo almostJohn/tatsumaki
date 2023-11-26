@@ -1,10 +1,8 @@
 import { on } from "node:events";
+import { type Event, injectable, logger } from "@almostjohn/djs-framework";
 import { Client, Events, AutoModerationActionType } from "discord.js";
 import type { AutoModerationActionExecution } from "discord.js";
-import { injectable } from "tsyringe";
-import type { Event } from "../../Event.js";
 import { handleAntiSpam } from "../../functions/anti-spam/handler.js";
-import { logger } from "../../logger.js";
 
 @injectable()
 export default class implements Event {
@@ -33,7 +31,7 @@ export default class implements Event {
 				});
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error, error.message);
+				logger.error(error.message);
 			}
 		}
 	}

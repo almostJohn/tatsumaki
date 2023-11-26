@@ -1,11 +1,8 @@
 import { on } from "node:events";
+import { type Event, inject, injectable, kWebhooks, logger } from "@almostjohn/djs-framework";
 import { Client, Events, type GuildMember, type Webhook } from "discord.js";
-import type { Event } from "../../Event.js";
-import { inject, injectable } from "tsyringe";
 import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
 import { generateMemberLog } from "../../util/generateMemberLog.js";
-import { kWebhooks } from "../../tokens.js";
-import { logger } from "../../logger.js";
 
 @injectable()
 export default class implements Event {
@@ -35,10 +32,7 @@ export default class implements Event {
 
 				const locale = await getGuildSetting(guildMember.guild.id, SettingsKeys.Locale);
 
-				logger.info(
-					{ event: { name: this.name, event: this.event }, guildId: guildMember.guild.id, memberId: guildMember.id },
-					`Member ${guildMember.id} left`,
-				);
+				logger.info(`Member ${guildMember.id} left`);
 
 				await webhook.send({
 					embeds: [generateMemberLog(guildMember, locale, false)],

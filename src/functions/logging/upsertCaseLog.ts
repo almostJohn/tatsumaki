@@ -1,11 +1,10 @@
+import { container, kSQL } from "@almostjohn/djs-framework";
 import type { Guild, User } from "discord.js";
 import type { Sql } from "postgres";
-import { container } from "tsyringe";
 import type { Case } from "../cases/createCase.js";
 import { checkLogChannel } from "../settings/checkLogChannel.js";
 import { getGuildSetting, SettingsKeys } from "../settings/getGuildSetting.js";
 import { generateCaseEmbed } from "./generateCaseEmbed.js";
-import { kSQL } from "../../tokens.js";
 
 export async function upsertCaseLog(guild: Guild, user: User | null | undefined, case_: Case) {
 	const sql = container.resolve<Sql<any>>(kSQL);

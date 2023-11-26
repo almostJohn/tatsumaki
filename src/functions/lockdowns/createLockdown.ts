@@ -1,10 +1,8 @@
-import { container } from "tsyringe";
+import { container, kSQL, type PartialAndUndefinedOnNull } from "@almostjohn/djs-framework";
 import { type GuildChannel, OverwriteType, PermissionFlagsBits } from "discord.js";
-import type { PartialAndUndefinedOnNull } from "../../types/Utility.js";
 import type { Sql } from "postgres";
 import type { CamelCasedProperties } from "type-fest";
 import { type RawLockdown, transformLockdown } from "./transformLockdown.js";
-import { kSQL } from "../../tokens.js";
 
 export type Lockdown = PartialAndUndefinedOnNull<CamelCasedProperties<RawLockdown>>;
 

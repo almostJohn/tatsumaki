@@ -1,14 +1,9 @@
 import { on } from "node:events";
+import { type Event, inject, injectable, kWebhooks, logger, addFields, truncateEmbed } from "@almostjohn/djs-framework";
 import { Client, Events, type Webhook, type ThreadChannel } from "discord.js";
 import i18next from "i18next";
-import { inject, injectable } from "tsyringe";
-import type { Event } from "../../Event.js";
-import { addFields, truncateEmbed } from "../../util/embed.js";
 import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
 import { Color } from "../../Constants.js";
-import { kWebhooks } from "../../tokens.js";
-import { logger } from "../../logger.js";
-
 @injectable()
 export default class implements Event {
 	public name = "Guild log thread create";
@@ -53,16 +48,7 @@ export default class implements Event {
 
 				const locale = await getGuildSetting(thread.guild.id, SettingsKeys.Locale);
 
-				logger.info(
-					{
-						event: { name: this.name, event: this.event },
-						guildId: thread.guild.id,
-						threadId: thread.id,
-						newlyCreated,
-						ownerId: thread.ownerId,
-					},
-					`Thread ${thread.name} created`,
-				);
+				logger.info(`Thread ${thread.name} created`);
 
 				const descriptionParts = [
 					i18next.t("log.guild_log.thread_created.channel", {
@@ -109,7 +95,7 @@ export default class implements Event {
 				});
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error, error.message);
+				logger.error(error.message);
 			}
 		}
 	}

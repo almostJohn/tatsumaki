@@ -1,17 +1,17 @@
-import { Collection, type Snowflake, type AutocompleteInteraction } from "discord.js";
-import i18next from "i18next";
-import type { LocaleParam } from "../../interactions/Interaction.js";
-import { reportStatusLabel } from "../../util/actionKeys.js";
-import { ReportType, type ReportStatus } from "../reports/createReport.js";
-import { findReports } from "../reports/findReports.js";
-import { ellipsis } from "../../util/ellipsis.js";
 import {
-	OP_DELIMITER,
+	ellipsis,
+	type LocaleParam,
 	AUTOCOMPLETE_CHOICE_LIMIT,
 	AUTOCOMPLETE_CHOICE_NAME_LENGTH_LIMIT,
 	SNOWFLAKE_MIN_LENGTH,
-} from "../../Constants.js";
-import { logger } from "../../logger.js";
+	logger,
+} from "@almostjohn/djs-framework";
+import { Collection, type Snowflake, type AutocompleteInteraction } from "discord.js";
+import i18next from "i18next";
+import { reportStatusLabel } from "../../util/actionKeys.js";
+import { ReportType, type ReportStatus } from "../reports/createReport.js";
+import { findReports } from "../reports/findReports.js";
+import { OP_DELIMITER } from "../../Constants.js";
 
 export async function handleReportAutocomplele(
 	interaction: AutocompleteInteraction<"cached">,
@@ -24,7 +24,7 @@ export async function handleReportAutocomplele(
 		let choices = reports.map((report) => {
 			const choiceName = `#${report.report_id} ${report.type === ReportType.Message ? "✉️" : "👤"} ${reportStatusLabel(
 				report.status as ReportStatus,
-				locale,
+				locale!,
 			).toUpperCase()} ${report.author_tag} ➜ ${report.target_tag}: ${report.reason}`;
 
 			return {
@@ -112,6 +112,6 @@ export async function handleReportAutocomplele(
 		await interaction.respond(choices.slice(0, AUTOCOMPLETE_CHOICE_LIMIT));
 	} catch (error_) {
 		const error = error_ as Error;
-		logger.error(error, error.message);
+		logger.error(error.message);
 	}
 }

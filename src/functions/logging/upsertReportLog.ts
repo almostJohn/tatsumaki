@@ -1,8 +1,8 @@
 import { Buffer } from "node:buffer";
+import { container, kSQL, createMessageActionRow } from "@almostjohn/djs-framework";
 import type { APIEmbed, Embed, Guild, Message, Collection, Snowflake } from "discord.js";
 import i18next from "i18next";
 import type { Sql } from "postgres";
-import { container } from "tsyringe";
 import { createMessageLinkButton } from "../../util/createMessageLinkButton.js";
 import { generateUserInfo } from "../../util/generateHistory.js";
 import { resolveMemberAndUser } from "../../util/resolveMemberAndUser.js";
@@ -14,8 +14,6 @@ import type { ReportStatusTagTuple, ReportTypeTagTuple } from "../settings/getGu
 import { formatMessageToEmbed } from "./formatMessageToEmbed.js";
 import { formatMessagesToAttachment } from "./formatMessagesToAttachment.js";
 import { generateReportEmbed } from "./generateReportEmbed.js";
-import { createMessageActionRow } from "../../util/messageActionRow.js";
-import { kSQL } from "../../tokens.js";
 
 export async function upsertReportLog(
 	guild: Guild,
@@ -63,7 +61,6 @@ export async function upsertReportLog(
 				lng: locale,
 			}),
 			message: {
-				// @ts-expect-error: this is fine
 				components: localMessage?.inGuild
 					? [createMessageActionRow([createMessageLinkButton(localMessage as Message<true>, locale)])]
 					: [],

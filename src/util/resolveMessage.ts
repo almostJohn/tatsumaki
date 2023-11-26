@@ -1,5 +1,5 @@
+import { container } from "@almostjohn/djs-framework";
 import { type Snowflake, Client } from "discord.js";
-import { container } from "tsyringe";
 import i18next from "i18next";
 import { getGuildSetting, SettingsKeys } from "../functions/settings/getGuildSetting.js";
 

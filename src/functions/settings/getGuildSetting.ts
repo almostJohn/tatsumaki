@@ -1,7 +1,6 @@
-import { container } from "tsyringe";
+import { container, kSQL } from "@almostjohn/djs-framework";
 import type { Snowflake } from "discord.js";
 import type { Sql } from "postgres";
-import { kSQL } from "../../tokens.js";
 
 export enum SettingsKeys {
 	AutomodIgnoreRoles = "automod_ignore_roles",

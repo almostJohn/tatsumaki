@@ -1,3 +1,4 @@
+import { container, kSQL, ellipsis } from "@almostjohn/djs-framework";
 import {
 	type Message,
 	type Snowflake,
@@ -9,16 +10,13 @@ import {
 	time,
 	TimestampStyles,
 } from "discord.js";
-import { container } from "tsyringe";
 import type { Sql } from "postgres";
 import i18next from "i18next";
 import { REPORT_REASON_MAX_LENGTH } from "../../Constants.js";
 import { caseActionLabel } from "../../util/actionKeys.js";
 import type { CaseAction } from "../cases/createCase.js";
 import type { Report } from "../reports/createReport.js";
-import { ellipsis } from "../../util/ellipsis.js";
 import { getGuildSetting, SettingsKeys } from "../settings/getGuildSetting.js";
-import { kSQL } from "../../tokens.js";
 
 export async function generateReportLog(report: Report, locale: string, message?: Message | null): Promise<string> {
 	const sql = container.resolve<Sql<any>>(kSQL);

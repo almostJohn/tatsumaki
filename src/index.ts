@@ -1,21 +1,24 @@
 import "reflect-metadata";
 import { URL, fileURLToPath, pathToFileURL } from "node:url";
 import { Backend } from "@skyra/i18next-backend";
+import {
+	type Command,
+	type CommandPayload,
+	type Event,
+	container,
+	createClient,
+	createPostgres,
+	createRedis,
+	createCommands,
+	createWebhooks,
+	dynamicImport,
+	commandInfo,
+	kCommands,
+	logger,
+} from "@almostjohn/djs-framework";
 import { GatewayIntentBits, Partials, Options } from "discord.js";
 import i18next from "i18next";
 import readdirp from "readdirp";
-import { container } from "tsyringe";
-import { type Command, commandInfo } from "./Command.js";
-import type { Event } from "./Event.js";
-import type { CommandPayload } from "./interactions/ArgumentsOf.js";
-import { createClient } from "./util/client.js";
-import { createPostgres } from "./util/postgres.js";
-import { createRedis } from "./util/redis.js";
-import { createCommands } from "./util/commands.js";
-import { createWebhooks } from "./util/webhooks.js";
-import { dynamicImport } from "./util/dynamicImport.js";
-import { kCommands } from "./tokens.js";
-import { logger } from "./logger.js";
 
 await createPostgres();
 await createRedis();
@@ -76,10 +79,7 @@ try {
 			async () => import(pathToFileURL(dir.fullPath).href),
 		);
 		const command = container.resolve<Command<CommandPayload>>((await dynamic()).default);
-		logger.info(
-			{ command: { name: command.name?.join(", ") ?? cmdInfo.name } },
-			`Registering command: ${command.name?.join(", ") ?? cmdInfo.name}`,
-		);
+		logger.info(`Registering command: ${command.name?.join(", ") ?? cmdInfo.name}`);
 
 		if (command.name) {
 			for (const name of command.name) {
@@ -93,7 +93,7 @@ try {
 	for await (const dir of eventFiles) {
 		const dynamic = dynamicImport<new () => Event>(async () => import(pathToFileURL(dir.fullPath).href));
 		const event_ = container.resolve<Event>((await dynamic()).default);
-		logger.info({ event: { name: event_.name, event: event_.event } }, `Registering event: ${event_.name}`);
+		logger.info(`Registering event: ${event_.name}: ${event_.event}`);
 
 		if (event_.disabled) {
 			continue;
@@ -105,5 +105,5 @@ try {
 	await client.login();
 } catch (error_) {
 	const error = error_ as Error;
-	logger.error(error, error.message);
+	logger.error(error.message);
 }

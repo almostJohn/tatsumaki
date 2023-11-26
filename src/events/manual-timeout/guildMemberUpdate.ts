@@ -1,9 +1,8 @@
 import { on } from "node:events";
 import { setTimeout as pSetTimeout } from "node:timers/promises";
+import { type Event, inject, injectable, kRedis, logger } from "@almostjohn/djs-framework";
 import { Client, Events, type GuildMember, AuditLogEvent } from "discord.js";
 import type { Redis } from "ioredis";
-import type { Event } from "../../Event.js";
-import { inject, injectable } from "tsyringe";
 import { AUDIT_LOG_WAIT_SECONDS } from "../../Constants.js";
 import { createCase, CaseAction } from "../../functions/cases/createCase.js";
 import { deleteCase } from "../../functions/cases/deleteCase.js";
@@ -11,8 +10,6 @@ import { generateCasePayload } from "../../functions/logging/generateCasePayload
 import { upsertCaseLog } from "../../functions/logging/upsertCaseLog.js";
 import { checkLogChannel } from "../../functions/settings/checkLogChannel.js";
 import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
-import { kRedis } from "../../tokens.js";
-import { logger } from "../../logger.js";
 
 @injectable()
 export default class implements Event {
@@ -46,15 +43,7 @@ export default class implements Event {
 				const deleted = await this.redis.del(`guild:${oldMember.guild.id}:user:${oldMember.id}:timeout`);
 
 				if (deleted) {
-					logger.info(
-						{
-							event: { name: this.name, event: this.event },
-							guildId: oldMember.guild.id,
-							memberId: oldMember.id,
-							manual: false,
-						},
-						`Member ${oldMember.id} timeout`,
-					);
+					logger.info(`Member ${oldMember.id} timeout`);
 
 					continue;
 				}
@@ -85,17 +74,7 @@ export default class implements Event {
 				}
 
 				const timeoutEnded = Boolean(timeoutChange.old && !timeoutChange.new);
-				logger.info(
-					{
-						event: { name: this.name, event: this.event },
-						guildId: oldMember.guild.id,
-						userId: logs.executor?.id,
-						memberId: oldMember.id,
-						manual: true,
-						logs,
-					},
-					`Fetched logs for timeout ${timeoutEnded ? "end" : ""} ${oldMember.id}`,
-				);
+				logger.info(`Fetched logs for timeout ${timeoutEnded ? "end" : ""} ${oldMember.id}`);
 
 				const case_ = await (timeoutEnded
 					? deleteCase({
@@ -122,7 +101,7 @@ export default class implements Event {
 				await upsertCaseLog(oldMember.guild, logs.executor, case_);
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error, error.message);
+				logger.error(error.message);
 			}
 		}
 	}

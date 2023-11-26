@@ -1,12 +1,16 @@
+import {
+	logger,
+	ellipsis,
+	AUTOCOMPLETE_CHOICE_LIMIT,
+	AUTOCOMPLETE_CHOICE_NAME_LENGTH_LIMIT,
+	type LocaleParam,
+} from "@almostjohn/djs-framework";
 import { Collection, type Snowflake, type AutocompleteInteraction } from "discord.js";
 import i18next from "i18next";
-import type { LocaleParam } from "../../interactions/Interaction.js";
 import { caseActionLabel } from "../../util/actionKeys.js";
 import type { CaseAction } from "../cases/createCase.js";
 import { findCases } from "../cases/findCases.js";
-import { OP_DELIMITER, AUTOCOMPLETE_CHOICE_LIMIT, AUTOCOMPLETE_CHOICE_NAME_LENGTH_LIMIT } from "../../Constants.js";
-import { ellipsis } from "../../util/ellipsis.js";
-import { logger } from "../../logger.js";
+import { OP_DELIMITER } from "../../Constants.js";
 
 export async function handleCaseAutocomplete(
 	interaction: AutocompleteInteraction<"cached">,
@@ -17,7 +21,7 @@ export async function handleCaseAutocomplete(
 		const trimmedPhrase = interaction.options.getFocused().trim();
 		const cases = await findCases(trimmedPhrase, interaction.guildId);
 		let choices = cases.map((case_) => {
-			const choiceName = `#${case_.case_id} ${caseActionLabel(case_.action as CaseAction, locale).toUpperCase()} ${
+			const choiceName = `#${case_.case_id} ${caseActionLabel(case_.action as CaseAction, locale!).toUpperCase()} ${
 				case_.target_tag
 			}: ${
 				case_.reason ??
@@ -67,6 +71,6 @@ export async function handleCaseAutocomplete(
 		await interaction.respond(choices.slice(0, 25));
 	} catch (error_) {
 		const error = error_ as Error;
-		logger.error(error, error.message);
+		logger.error(error.message);
 	}
 }

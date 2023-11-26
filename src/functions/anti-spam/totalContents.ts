@@ -1,8 +1,7 @@
 import { createHash } from "node:crypto";
-import { container } from "tsyringe";
+import { container, kRedis } from "@almostjohn/djs-framework";
 import type { Snowflake } from "discord.js";
 import type { Redis } from "ioredis";
-import { kRedis } from "../../tokens.js";
 import { SPAM_EXPIRE_SECONDS } from "../../Constants.js";
 
 export function createContentHash(content: string) {

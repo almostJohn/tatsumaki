@@ -1,6 +1,6 @@
 import i18next from "i18next";
+import { createButton } from "@almostjohn/djs-framework";
 import { type Message, ButtonStyle } from "discord.js";
-import { createButton } from "./button.js";
 
 export function createMessageLinkButton(message: Message<true>, locale: string) {
 	return createButton({

@@ -1,6 +1,6 @@
+import { container, kRedis, logger } from "@almostjohn/djs-framework";
 import { Client, type Snowflake } from "discord.js";
 import i18next from "i18next";
-import { container } from "tsyringe";
 import type { Redis } from "ioredis";
 import { MENTION_THRESHOLD, SPAM_THRESHOLD } from "../../Constants.js";
 import { type Case, CaseAction, createCase } from "../cases/createCase.js";
@@ -9,8 +9,6 @@ import { checkLogChannel } from "../settings/checkLogChannel.js";
 import { getGuildSetting, SettingsKeys } from "../settings/getGuildSetting.js";
 import { createContentHash, totalContents } from "./totalContents.js";
 import { totalMentions } from "./totalMentions.js";
-import { kRedis } from "../../tokens.js";
-import { logger } from "../../logger.js";
 
 export async function handleAntiSpam(
 	guildId: Snowflake,

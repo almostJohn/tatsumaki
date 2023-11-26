@@ -1,13 +1,10 @@
+import { container, kSQL, logger, type PartialAndUndefinedOnNull } from "@almostjohn/djs-framework";
 import type { Guild, Snowflake, GuildMember } from "discord.js";
 import type { Sql } from "postgres";
 import type { CamelCasedProperties } from "type-fest";
-import type { PartialAndUndefinedOnNull } from "../../types/Utility.js";
 import { type RawCase, transformCase } from "./transformCase.js";
 import { updateCase } from "./updateCase.js";
 import { resolvePendingReports } from "../reports/resolveReports.js";
-import { container } from "tsyringe";
-import { kSQL } from "../../tokens.js";
-import { logger } from "../../logger.js";
 
 export enum CaseAction {
 	Warn,
@@ -135,7 +132,7 @@ export async function createCase(
 			}
 		} catch (error_) {
 			const error = error_ as Error;
-			logger.error(error, error.message);
+			logger.error(error.message);
 		}
 	}
 

@@ -1,14 +1,9 @@
 import { on } from "node:events";
+import { type Event, inject, injectable, kWebhooks, logger, addFields, truncateEmbed } from "@almostjohn/djs-framework";
 import { Client, Events, type VoiceState, type Webhook, type APIEmbedAuthor } from "discord.js";
 import i18next from "i18next";
-import type { Event } from "../../Event.js";
-import { inject, injectable } from "tsyringe";
 import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
-import { addFields, truncateEmbed } from "../../util/embed.js";
 import { Color } from "../../Constants.js";
-import { kWebhooks } from "../../tokens.js";
-import { logger } from "../../logger.js";
-
 @injectable()
 export default class implements Event {
 	public name = "Guild log voice state update";
@@ -56,16 +51,7 @@ export default class implements Event {
 						continue;
 					}
 
-					logger.info(
-						{
-							event: { name: this.name, event: this.event },
-							guildId: newState.guild.id,
-							memberId: newState.member.id,
-							channelId: newState.channel.id,
-							joined: true,
-						},
-						`Member ${newState.member.id} joined a voice channel`,
-					);
+					logger.info(`Member ${newState.member.id} joined a voice channel`);
 
 					description = i18next.t("log.guild_log.voice_state_update.joined", {
 						channel: `${newState.channel.toString()} - ${newState.channel.name} (${newState.channel.id})`,
@@ -80,16 +66,7 @@ export default class implements Event {
 						continue;
 					}
 
-					logger.info(
-						{
-							event: { name: this.name, event: this.event },
-							guildId: oldState.guild.id,
-							memberId: oldState.member.id,
-							channelId: oldState.channel.id,
-							joined: false,
-						},
-						`Member ${oldState.member.id} left a voice channel`,
-					);
+					logger.info(`Member ${oldState.member.id} left a voice channel`);
 
 					description = i18next.t("log.guild_log.voice_state_update.left", {
 						channel: `${oldState.channel.toString()} - ${oldState.channel.name} (${oldState.channel.id})`,
@@ -104,17 +81,7 @@ export default class implements Event {
 						return;
 					}
 
-					logger.info(
-						{
-							event: { name: this.name, event: this.event },
-							guildId: newState.guild.id,
-							memberId: newState.member.id,
-							channelIdOld: oldState.channel.id,
-							channelIdNew: newState.channel.id,
-							moved: true,
-						},
-						`Member ${newState.member.id} moved from ${oldState.channel.id} to ${newState.channel.id}`,
-					);
+					logger.info(`Member ${newState.member.id} moved from ${oldState.channel.id} to ${newState.channel.id}`);
 
 					description = i18next.t("log.guild_log.voice_state_update.moved", {
 						from_channel: `${oldState.channel.toString()} - ${oldState.channel.name} (${oldState.channel.id})`,
@@ -144,7 +111,7 @@ export default class implements Event {
 				});
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error, error.message);
+				logger.error(error.message);
 			}
 		}
 	}

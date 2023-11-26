@@ -1,11 +1,10 @@
+import { container, kSQL } from "@almostjohn/djs-framework";
 import { type Snowflake, hyperlink, time, TimestampStyles, messageLink, channelLink } from "discord.js";
 import i18next from "i18next";
 import type { Sql } from "postgres";
-import { container } from "tsyringe";
 import { type Case, CaseAction } from "../cases/createCase.js";
 import { caseActionLabel } from "../../util/actionKeys.js";
 import { getGuildSetting, SettingsKeys } from "../settings/getGuildSetting.js";
-import { kSQL } from "../../tokens.js";
 
 export async function generateCaseLog(case_: Case, logChannelId: Snowflake, locale: string) {
 	const sql = container.resolve<Sql<any>>(kSQL);

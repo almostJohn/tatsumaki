@@ -1,10 +1,8 @@
+import { container, kSQL, type PartialAndUndefinedOnNull } from "@almostjohn/djs-framework";
 import type { Message, Snowflake } from "discord.js";
 import type { Sql } from "postgres";
 import type { CamelCasedProperties } from "type-fest";
-import type { PartialAndUndefinedOnNull } from "../../types/Utility.js";
-import { container } from "tsyringe";
 import { type RawReport, transformReport } from "./transformReport.js";
-import { kSQL } from "../../tokens.js";
 
 export enum ReportType {
 	Message,

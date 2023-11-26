@@ -1,14 +1,9 @@
 import { on } from "node:events";
+import { type Event, inject, injectable, kWebhooks, logger, addFields, truncateEmbed } from "@almostjohn/djs-framework";
 import { Client, Events, type Webhook } from "discord.js";
-import type { Event } from "../../Event.js";
 import i18next from "i18next";
-import { inject, injectable } from "tsyringe";
 import { Color } from "../../Constants.js";
 import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
-import { addFields, truncateEmbed } from "../../util/embed.js";
-import { kWebhooks } from "../../tokens.js";
-import { logger } from "../../logger.js";
-
 @injectable()
 export default class implements Event {
 	public name = "Guild log thread delete";
@@ -47,15 +42,7 @@ export default class implements Event {
 
 				const locale = await getGuildSetting(thread.guild.id, SettingsKeys.Locale);
 
-				logger.info(
-					{
-						event: { name: this.name, event: this.event },
-						guildId: thread.guild.id,
-						threadId: thread.id,
-						ownerId: thread.ownerId,
-					},
-					`Thread ${thread.name} deleted`,
-				);
+				logger.info(`Thread ${thread.name} deleted`);
 
 				const descriptionParts = [
 					i18next.t("log.guild_log.thread_deleted.channel", {

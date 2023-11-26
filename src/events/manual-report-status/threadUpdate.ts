@@ -1,17 +1,13 @@
 import { on } from "node:events";
 import { setTimeout as pSetTimeout } from "node:timers/promises";
+import { type Event, inject, injectable, kSQL, logger, arrayEquals } from "@almostjohn/djs-framework";
 import { Client, Events, AuditLogEvent, type ThreadChannel } from "discord.js";
 import type { Sql } from "postgres";
-import type { Event } from "../../Event.js";
-import { inject, injectable } from "tsyringe";
 import { AUDIT_LOG_WAIT_SECONDS } from "../../Constants.js";
 import { upsertReportLog } from "../../functions/logging/upsertReportLog.js";
 import { type RawReport, transformReport } from "../../functions/reports/transformReport.js";
 import { updateReport } from "../../functions/reports/updateReport.js";
 import { type ReportStatusTagTuple, getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
-import { arrayEquals } from "../../util/arrayEquals.js";
-import { kSQL } from "../../tokens.js";
-import { logger } from "../../logger.js";
 
 @injectable()
 export default class implements Event {
@@ -73,7 +69,7 @@ export default class implements Event {
 				}
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error, error.message);
+				logger.error(error.message);
 			}
 		}
 	}

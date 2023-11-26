@@ -1,18 +1,14 @@
 import { Buffer } from "node:buffer";
 import { on } from "node:events";
+import { type Event, inject, injectable, kWebhooks, logger, addFields, truncateEmbed } from "@almostjohn/djs-framework";
 import { Client, Events, type Snowflake, type Webhook } from "discord.js";
 import i18next from "i18next";
-import type { Event } from "../../Event.js";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime.js";
 import utc from "dayjs/plugin/utc.js";
-import { inject, injectable } from "tsyringe";
 import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
-import { addFields, truncateEmbed } from "../../util/embed.js";
 import { formatMessagesToAttachment } from "../../functions/logging/formatMessagesToAttachment.js";
 import { Color } from "../../Constants.js";
-import { kWebhooks } from "../../tokens.js";
-import { logger } from "../../logger.js";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -99,7 +95,7 @@ export default class implements Event {
 				});
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error, error.message);
+				logger.error(error.message);
 			}
 		}
 	}

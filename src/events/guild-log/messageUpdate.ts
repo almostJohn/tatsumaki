@@ -1,15 +1,10 @@
 import { on } from "node:events";
+import { type Event, inject, injectable, kWebhooks, logger, addFields, truncateEmbed } from "@almostjohn/djs-framework";
 import { Client, Events, type Message, type Webhook, escapeMarkdown } from "discord.js";
 import i18next from "i18next";
 import { diffLines, diffWords } from "diff";
-import { inject, injectable } from "tsyringe";
-import type { Event } from "../../Event.js";
-import { addFields, truncateEmbed } from "../../util/embed.js";
 import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
 import { Color } from "../../Constants.js";
-import { kWebhooks } from "../../tokens.js";
-import { logger } from "../../logger.js";
-
 @injectable()
 export default class implements Event {
 	public name = "Guild log message update";
@@ -62,14 +57,7 @@ export default class implements Event {
 
 				const locale = await getGuildSetting(newMessage.guild.id, SettingsKeys.Locale);
 
-				logger.info(
-					{
-						event: { name: this.name, event: this.event },
-						guildId: newMessage.guild.id,
-						memberId: newMessage.author.id,
-					},
-					`Member ${newMessage.author.id} updated a message`,
-				);
+				logger.info(`Member ${newMessage.author.id} updated a message`);
 
 				let description = "";
 
@@ -146,7 +134,7 @@ export default class implements Event {
 				});
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error, error.message);
+				logger.error(error.message);
 			}
 		}
 	}

@@ -1,16 +1,13 @@
 import { on } from "node:events";
 import { setTimeout as pSetTimeout } from "node:timers/promises";
+import { type Event, inject, injectable, kRedis, logger } from "@almostjohn/djs-framework";
 import { Client, Events, type GuildBan, AuditLogEvent } from "discord.js";
 import type { Redis } from "ioredis";
-import type { Event } from "../../Event.js";
-import { inject, injectable } from "tsyringe";
 import { AUDIT_LOG_WAIT_SECONDS } from "../../Constants.js";
 import { deleteCase } from "../../functions/cases/deleteCase.js";
 import { upsertCaseLog } from "../../functions/logging/upsertCaseLog.js";
 import { checkLogChannel } from "../../functions/settings/checkLogChannel.js";
 import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
-import { kRedis } from "../../tokens.js";
-import { logger } from "../../logger.js";
 
 @injectable()
 export default class implements Event {
@@ -38,43 +35,18 @@ export default class implements Event {
 				const deleted = await this.redis.del(`guild:${guildBan.guild.id}:user:${guildBan.user.id}:unban`);
 
 				if (deleted) {
-					logger.info(
-						{
-							event: { name: this.name, event: this.event },
-							guildId: guildBan.guild.id,
-							memberId: guildBan.user.id,
-							manual: false,
-						},
-						`Member ${guildBan.user.id} unbanned`,
-					);
+					logger.info(`Member ${guildBan.user.id} unbanned (manual: false)`);
 
 					continue;
 				}
 
-				logger.info(
-					{
-						event: { name: this.name, event: this.event },
-						guildId: guildBan.guild.id,
-						memberId: guildBan.user.id,
-						manual: true,
-					},
-					`Member ${guildBan.user.id} unbanned`,
-				);
+				logger.info(`Member ${guildBan.user.id} unbanned (manual: true)`);
 
 				await pSetTimeout(AUDIT_LOG_WAIT_SECONDS * 1_000);
 				const auditLogs = await guildBan.guild.fetchAuditLogs({ limit: 10, type: AuditLogEvent.MemberBanRemove });
 				const logs = auditLogs.entries.find((log) => log.target!.id === guildBan.user.id);
 
-				logger.info(
-					{
-						event: { name: this.name, event: this.event },
-						guildId: guildBan.guild.id,
-						memberId: guildBan.user.id,
-						manual: true,
-						logs,
-					},
-					`Fetched logs for unban ${guildBan.user.id}`,
-				);
+				logger.info(`Fetched ${logs} for unban ${guildBan.user.id} (manual: true)`);
 
 				const case_ = await deleteCase({
 					guild: guildBan.guild,

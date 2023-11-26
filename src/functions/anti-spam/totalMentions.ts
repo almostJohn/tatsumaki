@@ -1,10 +1,9 @@
+import { kRedis, container } from "@almostjohn/djs-framework";
 import type { Snowflake } from "discord.js";
 import type { Redis } from "ioredis";
-import { container } from "tsyringe";
 import { FormattingPatterns } from "discord.js";
 import { MENTION_EXPIRE_SECONDS } from "../../Constants.js";
 import { removeCodeBlocks } from "../../util/codeBlock.js";
-import { kRedis } from "../../tokens.js";
 
 export async function totalMentions(guildId: Snowflake, userId: Snowflake, content: string) {
 	const redis = container.resolve<Redis>(kRedis);

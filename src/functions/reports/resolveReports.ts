@@ -1,12 +1,10 @@
+import { container, kSQL, logger } from "@almostjohn/djs-framework";
 import type { Guild, User, Snowflake } from "discord.js";
 import type { Sql } from "postgres";
-import { container } from "tsyringe";
 import { upsertReportLog } from "../logging/upsertReportLog.js";
 import { ReportStatus } from "./createReport.js";
 import type { RawReport } from "./transformReport.js";
 import { updateReport } from "./updateReport.js";
-import { kSQL } from "../../tokens.js";
-import { logger } from "../../logger.js";
 
 export async function resolvePendingReports(guild: Guild, targetId: Snowflake, caseId: number, moderator: User) {
 	const sql = container.resolve<Sql<any>>(kSQL);
@@ -34,15 +32,7 @@ export async function resolvePendingReports(guild: Guild, targetId: Snowflake, c
 
 			await upsertReportLog(guild, updatedReport);
 		} catch (error) {
-			logger.error(
-				{
-					error,
-					reportId: report.report_id,
-					targetId,
-					moderatorId: moderator.id,
-				},
-				"Failed to automatically resolve report",
-			);
+			logger.error("Failed to automatically resolve report");
 		}
 	}
 

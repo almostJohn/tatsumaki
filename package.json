@@ -21,7 +21,8 @@
 	"author": "almostJohn <garcia.johngale@gmail.com>",
 	"license": "AGPL-3.0",
 	"dependencies": {
-		"@discordjs/rest": "^2.0.1",
+		"@almostjohn/djs-framework": "^2.2.2",
+		"@discordjs/rest": "^2.2.0",
 		"@naval-base/ms": "^3.1.0",
 		"@skyra/i18next-backend": "^2.0.4",
 		"bullmq": "^4.12.7",

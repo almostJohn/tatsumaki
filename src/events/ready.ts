@@ -1,11 +1,8 @@
 import { on } from "node:events";
-import type { Event } from "../Event.js";
+import { type Event, inject, injectable, kWebhooks, logger } from "@almostjohn/djs-framework";
 import { Client, Events, type Webhook, PermissionFlagsBits } from "discord.js";
-import { inject, injectable } from "tsyringe";
 import { getGuildSetting, SettingsKeys } from "../functions/settings/getGuildSetting.js";
 import { registerJobs } from "../jobs.js";
-import { kWebhooks } from "../tokens.js";
-import { logger } from "../logger.js";
 
 @injectable()
 export default class implements Event {
@@ -20,13 +17,10 @@ export default class implements Event {
 
 	public async execute(): Promise<void> {
 		for await (const _ of on(this.client, this.event)) {
-			logger.info({ event: { name: this.name, event: this.event } }, "Caching webhooks");
+			logger.info("Caching webhooks");
 			for (const guild of this.client.guilds.cache.values()) {
 				if (!guild.members.me?.permissions.has(PermissionFlagsBits.ManageWebhooks, true)) {
-					logger.info(
-						{ event: { name: this.name, event: this.event }, guildId: guild.id },
-						"No permission to fetch webhooks",
-					);
+					logger.warn("No permission to fetch webhooks");
 					continue;
 				}
 
@@ -56,7 +50,7 @@ export default class implements Event {
 				}
 			}
 
-			logger.info({ event: { name: this.name, event: this.event } }, "Registering jobs");
+			logger.info("Registering jobs");
 			await registerJobs();
 		}
 	}

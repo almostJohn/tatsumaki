@@ -1,16 +1,13 @@
 import { on } from "node:events";
+import { type Event, inject, injectable, kRedis, logger } from "@almostjohn/djs-framework";
 import type { AutoModerationActionExecution } from "discord.js";
 import { AutoModerationRuleTriggerType, AutoModerationActionType, Client, Events } from "discord.js";
-import type { Event } from "../../Event.js";
 import i18next from "i18next";
 import type { Redis } from "ioredis";
-import { inject, injectable } from "tsyringe";
 import { CaseAction, createCase } from "../../functions/cases/createCase.js";
 import { generateCasePayload } from "../../functions/logging/generateCasePayload.js";
 import { upsertCaseLog } from "../../functions/logging/upsertCaseLog.js";
 import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
-import { kRedis } from "../../tokens.js";
-import { logger } from "../../logger.js";
 
 @injectable()
 export default class implements Event {
@@ -44,15 +41,7 @@ export default class implements Event {
 
 				const locale = await getGuildSetting(autoModAction.guild.id, SettingsKeys.Locale);
 
-				logger.info(
-					{
-						event: { name: this.name, event: this.event },
-						guildId: autoModAction.guild.id,
-						memberId: autoModAction.userId,
-						manual: false,
-					},
-					`Member ${autoModAction.userId} timeout (AutoMod)`,
-				);
+				logger.info(`Member ${autoModAction.userId} timeout (AutoMod)`);
 
 				let reasonType = "default";
 				switch (autoModAction.ruleTriggerType) {
@@ -87,7 +76,7 @@ export default class implements Event {
 				await upsertCaseLog(autoModAction.guild, this.client.user, case_);
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error, error.message);
+				logger.error(error.message);
 			}
 		}
 	}

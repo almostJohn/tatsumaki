@@ -1,8 +1,7 @@
+import { container, kSQL } from "@almostjohn/djs-framework";
 import { Client } from "discord.js";
 import type { PermissionOverwrites, GuildChannel, Snowflake } from "discord.js";
 import type { Sql } from "postgres";
-import { container } from "tsyringe";
-import { kSQL } from "../../tokens.js";
 
 export async function deleteLockdown(channelId: Snowflake) {
 	const client = container.resolve<Client<true>>(Client);

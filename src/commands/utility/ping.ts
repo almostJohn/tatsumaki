@@ -1,5 +1,5 @@
-import { Command } from "../../Command.js";
-import type { ArgsParam, InteractionParam, LocaleParam } from "../../interactions/Interaction.js";
+import { Command } from "@almostjohn/djs-framework";
+import type { ArgsParam, InteractionParam, LocaleParam } from "@almostjohn/djs-framework";
 import i18next from "i18next";
 import type { PingCommand } from "../../interactions/index.js";
 

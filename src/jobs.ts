@@ -1,13 +1,11 @@
 import { type Job, Queue, Worker } from "bullmq";
+import { container, kRedis, kSQL, logger } from "@almostjohn/djs-framework";
 import { Client, type Snowflake } from "discord.js";
 import type { Redis } from "ioredis";
 import type { Sql } from "postgres";
-import { container } from "tsyringe";
 import { deleteCase } from "./functions/cases/deleteCase.js";
 import { deleteLockdown } from "./functions/lockdowns/deleteLockdown.js";
 import { upsertCaseLog } from "./functions/logging/upsertCaseLog.js";
-import { kRedis, kSQL } from "./tokens.js";
-import { logger } from "./logger.js";
 
 export async function registerJobs() {
 	const client = container.resolve<Client<true>>(Client);
@@ -17,13 +15,13 @@ export async function registerJobs() {
 	const queue = new Queue("jobs", { connection: redis });
 
 	try {
-		logger.info({ job: { name: "modActionTimers" } }, "Registering job: modActionTimers");
+		logger.info("Registering job: modActionTimers");
 		await queue.add("modActionTimers", {}, { repeat: { pattern: "* * * * *" } });
-		logger.info({ job: { name: "modActionTimers" } }, "Registered job: modActionTimers");
+		logger.info("Registered job: modActionTimers");
 
-		logger.info({ job: { name: "modLockdownTimers" } }, "Registering job: modLockdownTimers");
+		logger.info("Registering job: modLockdownTimers");
 		await queue.add("modLockdownTimers", {}, { repeat: { pattern: "* * * * *" } });
-		logger.info({ job: { name: "modLockdownTimers" } }, "Registered job: modLockdownTimers");
+		logger.info("Registered job: modLockdownTimers");
 
 		new Worker(
 			"jobs",
@@ -85,6 +83,6 @@ export async function registerJobs() {
 		);
 	} catch (error_) {
 		const error = error_ as Error;
-		logger.error(error, error.message);
+		logger.error(error.message);
 	}
 }

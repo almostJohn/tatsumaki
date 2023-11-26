@@ -1,9 +1,8 @@
-import { Command } from "../../Command.js";
-import type { ArgsParam, InteractionParam, LocaleParam, CommandMethod } from "../../interactions/Interaction.js";
+import { Command, createMessageActionRow } from "@almostjohn/djs-framework";
+import type { ArgsParam, InteractionParam, LocaleParam, CommandMethod } from "@almostjohn/djs-framework";
 import type { Message } from "discord.js";
 import i18next from "i18next";
 import { formatMessageToEmbed } from "../../functions/logging/formatMessageToEmbed.js";
-import { createMessageActionRow } from "../../util/messageActionRow.js";
 import type { RepostCommand, RepostMessageContextCommand } from "../../interactions/index.js";
 import { createMessageLinkButton } from "../../util/createMessageLinkButton.js";
 import { parseMessageLink, resolveMessage } from "../../util/resolveMessage.js";
@@ -16,7 +15,6 @@ export default class extends Command<typeof RepostCommand | typeof RepostMessage
 	): Promise<void> {
 		await interaction.editReply({
 			embeds: [formatMessageToEmbed(message, locale)],
-			// @ts-expect-error: discord.js needs an update
 			components: [createMessageActionRow([createMessageLinkButton(message, locale)])],
 		});
 	}
@@ -40,9 +38,9 @@ export default class extends Command<typeof RepostCommand | typeof RepostMessage
 		}
 
 		const { guildId, channelId, messageId } = parsedLink;
-		const message = await resolveMessage(interaction.channelId, guildId!, channelId!, messageId!, locale);
+		const message = await resolveMessage(interaction.channelId, guildId!, channelId!, messageId!, locale!);
 
-		await this.handle(interaction, message, locale);
+		await this.handle(interaction, message, locale!);
 	}
 
 	public override async messageContext(
@@ -51,6 +49,6 @@ export default class extends Command<typeof RepostCommand | typeof RepostMessage
 		locale: LocaleParam,
 	): Promise<void> {
 		await interaction.deferReply();
-		await this.handle(interaction, args.message, locale);
+		await this.handle(interaction, args.message, locale!);
 	}
 }
