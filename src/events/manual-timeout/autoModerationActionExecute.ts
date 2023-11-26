@@ -41,7 +41,15 @@ export default class implements Event {
 
 				const locale = await getGuildSetting(autoModAction.guild.id, SettingsKeys.Locale);
 
-				logger.info(`Member ${autoModAction.userId} timeout (AutoMod)`);
+				logger.info(
+					{
+						event: { name: this.name, event: this.event },
+						guildId: autoModAction.guild.id,
+						memberId: autoModAction.userId,
+						manual: false,
+					},
+					`Member ${autoModAction.userId} timeout (AutoMod)`,
+				);
 
 				let reasonType = "default";
 				switch (autoModAction.ruleTriggerType) {
@@ -76,7 +84,7 @@ export default class implements Event {
 				await upsertCaseLog(autoModAction.guild, this.client.user, case_);
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error.message);
+				logger.error(error, error.message);
 			}
 		}
 	}

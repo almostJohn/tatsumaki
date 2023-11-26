@@ -69,7 +69,7 @@ export default class implements Event {
 				}
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error.message);
+				logger.error(error, error.message);
 			}
 		}
 	}

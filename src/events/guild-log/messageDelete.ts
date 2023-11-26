@@ -1,6 +1,6 @@
 import { on } from "node:events";
 import { type Event, inject, injectable, kWebhooks, logger, addFields, truncateEmbed } from "@almostjohn/djs-framework";
-import { Client, Events, messageLink, MessageType, type Message, type Webhook } from "discord.js";
+import { ChannelType, Client, Events, messageLink, MessageType, type Message, type Webhook } from "discord.js";
 import i18next from "i18next";
 import { getGuildSetting, SettingsKeys } from "../../functions/settings/getGuildSetting.js";
 import { Color } from "../../Constants.js";
@@ -55,7 +55,16 @@ export default class implements Event {
 
 				const locale = await getGuildSetting(message.guild.id, SettingsKeys.Locale);
 
-				logger.info(`Message by ${message.author.id} deleted in channel ${message.channelId}`);
+				logger.info(
+					{
+						event: { name: this.name, event: this.event },
+						guildId: message.guild.id,
+						memberId: message.author.id,
+						channelId: message.channelId,
+						channelType: ChannelType[message.channel.type],
+					},
+					`Message by ${message.author.id} deleted in channel ${message.channelId}`,
+				);
 
 				const infoParts = [
 					i18next.t("log.guild_log.message_deleted.channel", {
@@ -149,7 +158,7 @@ export default class implements Event {
 				});
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error.message);
+				logger.error(error, error.message);
 			}
 		}
 	}

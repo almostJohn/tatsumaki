@@ -55,6 +55,7 @@ export default class implements Event {
 							const isAutocomplete = interaction.isAutocomplete();
 
 							logger.info(
+								{ command: { name: interaction.commandName, type: interaction.type }, userId: interaction.user.id },
 								`Executing ${isAutocomplete ? "autocomplete" : "chatInput command"} ${interaction.commandName}`,
 							);
 
@@ -62,6 +63,7 @@ export default class implements Event {
 								const autocompleteType = findAutocompleteType(interaction.options.getFocused(true).name);
 
 								logger.info(
+									{ command: { name: interaction.commandName, type: interaction.type }, userId: interaction.user.id },
 									`Executing autocomplete ${interaction.commandName} with type ${autocompleteType ?? "custom"}`,
 								);
 
@@ -97,7 +99,10 @@ export default class implements Event {
 						}
 
 						case ApplicationCommandType.Message: {
-							logger.info(`Executing message context command ${interaction.commandName}`);
+							logger.info(
+								{ command: { name: interaction.commandName, type: interaction.type }, userId: interaction.user.id },
+								`Executing message context command ${interaction.commandName}`,
+							);
 
 							await command.messageContext(
 								interaction,
@@ -108,7 +113,10 @@ export default class implements Event {
 						}
 
 						case ApplicationCommandType.User: {
-							logger.info(`Executing user context command ${interaction.commandName}`);
+							logger.info(
+								{ command: { name: interaction.commandName, type: interaction.type }, userId: interaction.user.id },
+								`Executing user context command ${interaction.commandName}`,
+							);
 
 							await command.userContext(
 								interaction,
@@ -131,7 +139,10 @@ export default class implements Event {
 						}
 
 						if (!interaction.deferred && !interaction.replied) {
-							logger.warn("Command interaction has not been deferred before throwing");
+							logger.warn(
+								{ command: { name: interaction.commandName, type: interaction.type }, userId: interaction.user.id },
+								"Command interaction has not been deferred before throwing",
+							);
 							await interaction.deferReply({ ephemeral: true });
 						}
 

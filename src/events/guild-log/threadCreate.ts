@@ -48,7 +48,16 @@ export default class implements Event {
 
 				const locale = await getGuildSetting(thread.guild.id, SettingsKeys.Locale);
 
-				logger.info(`Thread ${thread.name} created`);
+				logger.info(
+					{
+						event: { name: this.name, event: this.event },
+						guildId: thread.guild.id,
+						threadId: thread.id,
+						newlyCreated,
+						ownerId: thread.ownerId,
+					},
+					`Thread ${thread.name} created`,
+				);
 
 				const descriptionParts = [
 					i18next.t("log.guild_log.thread_created.channel", {
@@ -95,7 +104,7 @@ export default class implements Event {
 				});
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error.message);
+				logger.error(error, error.message);
 			}
 		}
 	}

@@ -71,6 +71,6 @@ export async function handleCaseAutocomplete(
 		await interaction.respond(choices.slice(0, 25));
 	} catch (error_) {
 		const error = error_ as Error;
-		logger.error(error.message);
+		logger.error(error, error.message);
 	}
 }

@@ -15,13 +15,13 @@ export async function registerJobs() {
 	const queue = new Queue("jobs", { connection: redis });
 
 	try {
-		logger.info("Registering job: modActionTimers");
+		logger.info({ job: { name: "modActionTimers" } }, "Registering job: modActionTimers");
 		await queue.add("modActionTimers", {}, { repeat: { pattern: "* * * * *" } });
-		logger.info("Registered job: modActionTimers");
+		logger.info({ job: { name: "modActionTimers" } }, "Registered job: modActionTimers");
 
-		logger.info("Registering job: modLockdownTimers");
+		logger.info({ job: { name: "modLockdownTimers" } }, "Registering job: modLockdownTimers");
 		await queue.add("modLockdownTimers", {}, { repeat: { pattern: "* * * * *" } });
-		logger.info("Registered job: modLockdownTimers");
+		logger.info({ job: { name: "modLockdownTimers" } }, "Registered job: modLockdownTimers");
 
 		new Worker(
 			"jobs",
@@ -83,6 +83,6 @@ export async function registerJobs() {
 		);
 	} catch (error_) {
 		const error = error_ as Error;
-		logger.error(error.message);
+		logger.error(error, error.message);
 	}
 }

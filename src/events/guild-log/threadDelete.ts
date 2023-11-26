@@ -42,7 +42,15 @@ export default class implements Event {
 
 				const locale = await getGuildSetting(thread.guild.id, SettingsKeys.Locale);
 
-				logger.info(`Thread ${thread.name} deleted`);
+				logger.info(
+					{
+						event: { name: this.name, event: this.event },
+						guildId: thread.guild.id,
+						threadId: thread.id,
+						ownerId: thread.ownerId,
+					},
+					`Thread ${thread.name} deleted`,
+				);
 
 				const descriptionParts = [
 					i18next.t("log.guild_log.thread_deleted.channel", {

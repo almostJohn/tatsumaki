@@ -32,7 +32,15 @@ export default class implements Event {
 
 				const locale = await getGuildSetting(guildMember.guild.id, SettingsKeys.Locale);
 
-				logger.info(`Member ${guildMember.id} joined`);
+				logger.info(
+					{
+						event: { name: this.name, event: this.event },
+						guildId: guildMember.guild.id,
+						memberId: guildMember.id,
+						joined: true,
+					},
+					`Member ${guildMember.id} joined`,
+				);
 
 				await webhook.send({
 					embeds: [generateMemberLog(guildMember, locale)],

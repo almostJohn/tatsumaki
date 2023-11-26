@@ -57,7 +57,14 @@ export default class implements Event {
 
 				const locale = await getGuildSetting(newMessage.guild.id, SettingsKeys.Locale);
 
-				logger.info(`Member ${newMessage.author.id} updated a message`);
+				logger.info(
+					{
+						event: { name: this.name, event: this.event },
+						guildId: newMessage.guild.id,
+						memberId: newMessage.author.id,
+					},
+					`Member ${newMessage.author.id} updated a message`,
+				);
 
 				let description = "";
 
@@ -134,7 +141,7 @@ export default class implements Event {
 				});
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error.message);
+				logger.error(error, error.message);
 			}
 		}
 	}

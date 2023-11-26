@@ -1,7 +1,7 @@
 import { oneLine } from "common-tags";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime.js";
-import { container, addFields, truncate, kSQL, logger, EMBED_DESCRIPTION_LIMIT } from "@almostjohn/djs-framework";
+import { container, addFields, truncate, kSQL, EMBED_DESCRIPTION_LIMIT, logger } from "@almostjohn/djs-framework";
 import i18next from "i18next";
 import {
 	type CommandInteraction,
@@ -387,7 +387,7 @@ export async function generateHistory(
 		}
 
 		default: {
-			logger.warn(`Unhandled history type: ${HistoryType[type]} (${type})`);
+			logger.info(undefined, `Unhandled history type: ${HistoryType[type]} (${type})`);
 		}
 	}
 

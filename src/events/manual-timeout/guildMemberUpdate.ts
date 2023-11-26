@@ -43,7 +43,15 @@ export default class implements Event {
 				const deleted = await this.redis.del(`guild:${oldMember.guild.id}:user:${oldMember.id}:timeout`);
 
 				if (deleted) {
-					logger.info(`Member ${oldMember.id} timeout`);
+					logger.info(
+						{
+							event: { name: this.name, event: this.event },
+							guildId: oldMember.guild.id,
+							memberId: oldMember.id,
+							manual: false,
+						},
+						`Member ${oldMember.id} timeout`,
+					);
 
 					continue;
 				}
@@ -74,7 +82,17 @@ export default class implements Event {
 				}
 
 				const timeoutEnded = Boolean(timeoutChange.old && !timeoutChange.new);
-				logger.info(`Fetched logs for timeout ${timeoutEnded ? "end" : ""} ${oldMember.id}`);
+				logger.info(
+					{
+						event: { name: this.name, event: this.event },
+						guildId: oldMember.guild.id,
+						userId: logs.executor?.id,
+						memberId: oldMember.id,
+						manual: true,
+						logs,
+					},
+					`Fetched logs for timeout ${timeoutEnded ? "end" : ""} ${oldMember.id}`,
+				);
 
 				const case_ = await (timeoutEnded
 					? deleteCase({
@@ -101,7 +119,7 @@ export default class implements Event {
 				await upsertCaseLog(oldMember.guild, logs.executor, case_);
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error.message);
+				logger.error(error, error.message);
 			}
 		}
 	}

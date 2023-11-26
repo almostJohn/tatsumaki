@@ -36,7 +36,15 @@ export default class implements Event {
 				const deleted = await this.redis.del(`guild:${guildBan.guild.id}:user:${guildBan.user.id}:ban`);
 
 				if (deleted) {
-					logger.info(`Member ${guildBan.user.id} banned (manual: false)`);
+					logger.info(
+						{
+							event: { name: this.name, event: this.event },
+							guildId: guildBan.guild.id,
+							memberId: guildBan.user.id,
+							manual: false,
+						},
+						`Member ${guildBan.user.id} banned`,
+					);
 
 					continue;
 				}
@@ -45,8 +53,27 @@ export default class implements Event {
 				const auditLogs = await guildBan.guild.fetchAuditLogs({ limit: 10, type: AuditLogEvent.MemberBanAdd });
 				const logs = auditLogs.entries.find((log) => log.target!.id === guildBan.user.id);
 
-				logger.info(`Member ${guildBan.user.id} banned (manual: true)`);
-				logger.info(`Fetched ${logs} for ban ${guildBan.user.id}`);
+				logger.info(
+					{
+						event: { name: this.name, event: this.event },
+						guildId: guildBan.guild.id,
+						userId: logs?.executor?.id,
+						memberId: guildBan.user.id,
+						manual: true,
+					},
+					`Member ${guildBan.user.id} banned`,
+				);
+				logger.info(
+					{
+						event: { name: this.name, event: this.event },
+						guildId: guildBan.guild.id,
+						userId: logs?.executor?.id,
+						memberId: guildBan.user.id,
+						manual: true,
+						logs,
+					},
+					`Fetched logs for ban ${guildBan.user.id}`,
+				);
 
 				const case_ = await createCase(
 					guildBan.guild,

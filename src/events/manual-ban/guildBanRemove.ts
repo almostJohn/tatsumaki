@@ -35,18 +35,43 @@ export default class implements Event {
 				const deleted = await this.redis.del(`guild:${guildBan.guild.id}:user:${guildBan.user.id}:unban`);
 
 				if (deleted) {
-					logger.info(`Member ${guildBan.user.id} unbanned (manual: false)`);
+					logger.info(
+						{
+							event: { name: this.name, event: this.event },
+							guildId: guildBan.guild.id,
+							memberId: guildBan.user.id,
+							manual: false,
+						},
+						`Member ${guildBan.user.id} unbanned`,
+					);
 
 					continue;
 				}
 
-				logger.info(`Member ${guildBan.user.id} unbanned (manual: true)`);
+				logger.info(
+					{
+						event: { name: this.name, event: this.event },
+						guildId: guildBan.guild.id,
+						memberId: guildBan.user.id,
+						manual: true,
+					},
+					`Member ${guildBan.user.id} unbanned`,
+				);
 
 				await pSetTimeout(AUDIT_LOG_WAIT_SECONDS * 1_000);
 				const auditLogs = await guildBan.guild.fetchAuditLogs({ limit: 10, type: AuditLogEvent.MemberBanRemove });
 				const logs = auditLogs.entries.find((log) => log.target!.id === guildBan.user.id);
 
-				logger.info(`Fetched ${logs} for unban ${guildBan.user.id} (manual: true)`);
+				logger.info(
+					{
+						event: { name: this.name, event: this.event },
+						guildId: guildBan.guild.id,
+						memberId: guildBan.user.id,
+						manual: true,
+						logs,
+					},
+					`Fetched logs for unban ${guildBan.user.id}`,
+				);
 
 				const case_ = await deleteCase({
 					guild: guildBan.guild,

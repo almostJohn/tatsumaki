@@ -17,10 +17,13 @@ export default class implements Event {
 
 	public async execute(): Promise<void> {
 		for await (const _ of on(this.client, this.event)) {
-			logger.info("Caching webhooks");
+			logger.info({ event: { name: this.name, event: this.event } }, "Caching webhooks");
 			for (const guild of this.client.guilds.cache.values()) {
 				if (!guild.members.me?.permissions.has(PermissionFlagsBits.ManageWebhooks, true)) {
-					logger.warn("No permission to fetch webhooks");
+					logger.info(
+						{ event: { name: this.name, event: this.event }, guildId: guild.id },
+						"No permission to fetch webhooks",
+					);
 					continue;
 				}
 
@@ -50,7 +53,7 @@ export default class implements Event {
 				}
 			}
 
-			logger.info("Registering jobs");
+			logger.info({ event: { name: this.name, event: this.event } }, "Registering jobs");
 			await registerJobs();
 		}
 	}

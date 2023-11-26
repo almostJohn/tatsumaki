@@ -31,8 +31,9 @@ export async function resolvePendingReports(guild: Guild, targetId: Snowflake, c
 			);
 
 			await upsertReportLog(guild, updatedReport);
-		} catch (error) {
-			logger.error("Failed to automatically resolve report");
+		} catch (error_) {
+			const error = error_ as Error;
+			logger.error(error, "Failed to automatically resolve report");
 		}
 	}
 

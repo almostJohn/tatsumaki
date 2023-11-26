@@ -112,6 +112,6 @@ export async function handleReportAutocomplele(
 		await interaction.respond(choices.slice(0, AUTOCOMPLETE_CHOICE_LIMIT));
 	} catch (error_) {
 		const error = error_ as Error;
-		logger.error(error.message);
+		logger.error(error, error.message);
 	}
 }

@@ -51,7 +51,16 @@ export default class implements Event {
 						continue;
 					}
 
-					logger.info(`Member ${newState.member.id} joined a voice channel`);
+					logger.info(
+						{
+							event: { name: this.name, event: this.event },
+							guildId: newState.guild.id,
+							memberId: newState.member.id,
+							channelId: newState.channel.id,
+							joined: true,
+						},
+						`Member ${newState.member.id} joined a voice channel`,
+					);
 
 					description = i18next.t("log.guild_log.voice_state_update.joined", {
 						channel: `${newState.channel.toString()} - ${newState.channel.name} (${newState.channel.id})`,
@@ -66,7 +75,16 @@ export default class implements Event {
 						continue;
 					}
 
-					logger.info(`Member ${oldState.member.id} left a voice channel`);
+					logger.info(
+						{
+							event: { name: this.name, event: this.event },
+							guildId: oldState.guild.id,
+							memberId: oldState.member.id,
+							channelId: oldState.channel.id,
+							joined: false,
+						},
+						`Member ${oldState.member.id} left a voice channel`,
+					);
 
 					description = i18next.t("log.guild_log.voice_state_update.left", {
 						channel: `${oldState.channel.toString()} - ${oldState.channel.name} (${oldState.channel.id})`,
@@ -81,7 +99,17 @@ export default class implements Event {
 						return;
 					}
 
-					logger.info(`Member ${newState.member.id} moved from ${oldState.channel.id} to ${newState.channel.id}`);
+					logger.info(
+						{
+							event: { name: this.name, event: this.event },
+							guildId: newState.guild.id,
+							memberId: newState.member.id,
+							channelIdOld: oldState.channel.id,
+							channelIdNew: newState.channel.id,
+							moved: true,
+						},
+						`Member ${newState.member.id} moved from ${oldState.channel.id} to ${newState.channel.id}`,
+					);
 
 					description = i18next.t("log.guild_log.voice_state_update.moved", {
 						from_channel: `${oldState.channel.toString()} - ${oldState.channel.name} (${oldState.channel.id})`,
@@ -111,7 +139,7 @@ export default class implements Event {
 				});
 			} catch (error_) {
 				const error = error_ as Error;
-				logger.error(error.message);
+				logger.error(error, error.message);
 			}
 		}
 	}

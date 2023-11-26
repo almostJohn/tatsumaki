@@ -79,7 +79,10 @@ try {
 			async () => import(pathToFileURL(dir.fullPath).href),
 		);
 		const command = container.resolve<Command<CommandPayload>>((await dynamic()).default);
-		logger.info(`Registering command: ${command.name?.join(", ") ?? cmdInfo.name}`);
+		logger.info(
+			{ command: { name: command.name?.join(", ") ?? cmdInfo.name } },
+			`Registering command: ${command.name?.join(", ") ?? cmdInfo.name}`,
+		);
 
 		if (command.name) {
 			for (const name of command.name) {
@@ -93,7 +96,7 @@ try {
 	for await (const dir of eventFiles) {
 		const dynamic = dynamicImport<new () => Event>(async () => import(pathToFileURL(dir.fullPath).href));
 		const event_ = container.resolve<Event>((await dynamic()).default);
-		logger.info(`Registering event: ${event_.name}: ${event_.event}`);
+		logger.info({ event: { name: event_.name, event: event_.event } }, `Registering event: ${event_.name}`);
 
 		if (event_.disabled) {
 			continue;
@@ -105,5 +108,5 @@ try {
 	await client.login();
 } catch (error_) {
 	const error = error_ as Error;
-	logger.error(error.message);
+	logger.error(error, error.message);
 }
