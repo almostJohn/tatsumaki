@@ -51,11 +51,11 @@ export default class extends Command<typeof CaseLookupCommand> {
 
 		if (!Number.isNaN(Number.parseInt(args.phrase, 10))) {
 			const [modCase] = await sql<RawCase[]>`
-                    select *
+				select *
                     from cases
                     where guild_id = ${interaction.guildId}
                     and case_id = ${args.phrase}
-               `;
+			`;
 
 			if (!modCase) {
 				throw new Error(i18next.t("command.common.errors.use_autocomplete", { lng: locale }));
@@ -85,6 +85,7 @@ export default class extends Command<typeof CaseLookupCommand> {
 				],
 				components: [createMessageActionRow([gotoButton])],
 			});
+			return;
 		}
 
 		throw new Error(i18next.t("command.common.errors.use_autocomplete", { lng: locale }));
