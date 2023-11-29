@@ -52,9 +52,9 @@ export default class extends Command<typeof CaseLookupCommand> {
 		if (!Number.isNaN(Number.parseInt(args.phrase, 10))) {
 			const [modCase] = await sql<RawCase[]>`
 				select *
-                    from cases
-                    where guild_id = ${interaction.guildId}
-                    and case_id = ${args.phrase}
+				from cases
+				where guild_id = ${interaction.guildId}
+					and case_id = ${args.phrase}
 			`;
 
 			if (!modCase) {
