@@ -35,11 +35,11 @@ export default class implements Event {
 
 				if (oldStatusTags.length !== 1 && newStatusTags.length === 1) {
 					const [rawReport] = await this.sql<[RawReport]>`
-                              select *
-                              from reports
-                              where guild_id = ${oldPost.guildId}
-                                   and log_post_id = ${oldPost.id}
-                         `;
+						select *
+						from reports
+						where guild_id = ${oldPost.guildId}
+							and log_post_id = ${oldPost.id}
+					`;
 
 					if (rawReport) {
 						await pSetTimeout(AUDIT_LOG_WAIT_SECONDS * 1_000);
