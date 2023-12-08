@@ -3,7 +3,6 @@ import { URL, fileURLToPath, pathToFileURL } from "node:url";
 import { Backend } from "@skyra/i18next-backend";
 import {
 	type Command,
-	type CommandPayload,
 	type Event,
 	container,
 	createClient,
@@ -54,7 +53,7 @@ const eventFiles = readdirp(fileURLToPath(new URL("events", import.meta.url)), {
 });
 
 try {
-	const commands = container.resolve<Map<string, Command<CommandPayload>>>(kCommands);
+	const commands = container.resolve<Map<string, Command>>(kCommands);
 
 	await i18next.use(Backend).init({
 		backend: {
@@ -75,12 +74,12 @@ try {
 			continue;
 		}
 
-		const dynamic = dynamicImport<new () => Command<CommandPayload>>(
-			async () => import(pathToFileURL(dir.fullPath).href),
-		);
-		const command = container.resolve<Command<CommandPayload>>((await dynamic()).default);
+		const dynamic = dynamicImport<new () => Command>(async () => import(pathToFileURL(dir.fullPath).href));
+		const command = container.resolve<Command>((await dynamic()).default);
 		logger.info(
-			{ command: { name: command.name?.join(", ") ?? cmdInfo.name } },
+			{
+				command: { name: command.name?.join(", ") ?? cmdInfo.name },
+			},
 			`Registering command: ${command.name?.join(", ") ?? cmdInfo.name}`,
 		);
 
